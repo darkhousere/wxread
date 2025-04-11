@@ -9,11 +9,14 @@ jobs:
   random_delay:
     runs-on: ubuntu-22.04
     outputs:
-      delay: ${{ steps.random.outputs.seconds }}
+      delay: ${{ steps.calculate_delay.outputs.seconds }} # 修改为使用 calculate_delay 步骤的输出
     steps:
-      - name: Generate Random Delay
-        id: random
-        run: echo "seconds=$((RANDOM % 86400))" >> $GITHUB_OUTPUT # 生成 0 到 86399 之间的随机秒数 (一天)
+      - name: Calculate Delay
+        id: calculate_delay
+        run: |
+          MAX_DELAY=$((86400 - 18000)) # 最大的延迟时间 = 24 小时 - 5 小时 = 19 小时 (秒)
+          RANDOM_SECONDS=$((RANDOM % MAX_DELAY)) # 生成 0 到 MAX_DELAY 之间的随机秒数
+          echo "seconds=$RANDOM_SECONDS" >> $GITHUB_OUTPUT
 
   deploy:
     needs: random_delay
